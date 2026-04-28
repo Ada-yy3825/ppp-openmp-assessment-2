@@ -121,22 +121,29 @@ jobs:
           export OMP_TOOL_LIBRARIES="$LLVM_LIBDIR/libarcher.so"
           export TSAN_OPTIONS="halt_on_error=1:external_symbolizer_path=$(which llvm-symbolizer):symbolize=0:ignore_noninstrumented_modules=1"
 
+          # CMake produces `mandelbrot_for` and `mandelbrot_tasks`; the grader
+          # and CHOICE.md use the semantic label `parallel_for` (vs `tasks`).
+          # Map binary suffix → semantic label so logs stay grader-compatible.
           for variant in for tasks; do
             binary="build/mandelbrot_${variant}"
+            case "$variant" in
+              for)   label="parallel_for" ;;
+              tasks) label="tasks" ;;
+            esac
             for i in 1 2 4 8 16; do
-                log="output-${variant}-${i}.txt"
+                log="output-${label}-${i}.txt"
                 OMP_NUM_THREADS="$i" "$binary" 2>&1 | tee -a "$log"
 
                 if grep -qE '^(WARNING|ERROR): ThreadSanitizer' "$log"; then
-                  echo "❌ TSan detected issues in $log" | tee -a correctness.log
+                  echo "❌ TSan detected issues in $log" | tee -a correctness-a2.log
                   exit 1
                 fi
 
                 if python3 bin/smart_diff.py "$log" expected_output.txt; then
-                    echo "Mandelbrot-${variant}-${i}: pass" | tee -a correctness.log
+                    echo "Mandelbrot-${label}-${i}: pass" | tee -a correctness-a2.log
                 else
-                    echo "Mandelbrot-${variant}-${i}: fail" | tee -a correctness.log
-                    diff "$log" expected_output.txt | tee -a correctness.log
+                    echo "Mandelbrot-${label}-${i}: fail" | tee -a correctness-a2.log
+                    diff "$log" expected_output.txt | tee -a correctness-a2.log
                     exit 1
                 fi
             done

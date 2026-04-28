@@ -29,19 +29,27 @@ export OMP_PLACES=cores
 
 echo '{"results": [' > perf-results-a2.json
 first=1
+# CMake produces binaries `mandelbrot_for` and `mandelbrot_tasks`; the grader
+# and CHOICE.md use the semantic label `parallel_for` (vs `tasks`). Map the
+# binary suffix → semantic label in one place to keep the perf JSON keyed
+# by the label CHOICE.md / the grader expect.
 for variant in for tasks; do
     binary="./build/mandelbrot_${variant}"
+    case "$variant" in
+        for)   label="parallel_for" ;;
+        tasks) label="tasks" ;;
+    esac
     for p in 1 16 64 128; do
-        echo "=== A2 ${variant} @ $p threads ==="
+        echo "=== A2 ${label} @ $p threads ==="
         OMP_NUM_THREADS=$p hyperfine --warmup 1 --min-runs 3 \
-            --export-json "mandelbrot-${variant}-$p.json" \
+            --export-json "mandelbrot-${label}-$p.json" \
             "$binary"
 
-        tmin=$(python3 bin/hyperfine_min_time.py "mandelbrot-${variant}-$p.json")
+        tmin=$(python3 bin/hyperfine_min_time.py "mandelbrot-${label}-$p.json")
         echo "  min time: $tmin s"
         [ $first -eq 0 ] && echo ',' >> perf-results-a2.json || first=0
         printf '  {"thread_count": %d, "variant": "%s", "time_s": %s}' \
-            "$p" "$variant" "$tmin" >> perf-results-a2.json
+            "$p" "$label" "$tmin" >> perf-results-a2.json
     done
 done
 echo ']}' >> perf-results-a2.json
