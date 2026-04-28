@@ -46,7 +46,11 @@ jobs:
       - name: cppcheck
         run: |
           set -o pipefail
+          # `--error-exitcode=1` makes cppcheck *fail the step* on any
+          # finding rather than silently exit 0 with diagnostics on
+          # stdout (which produces a green badge for buggy code).
           cppcheck --enable=performance,warning,style --quiet \
+            --error-exitcode=1 \
             --project=build/compile_commands.json 2>&1 | tee cppcheck.txt
 
       - name: clang-format
