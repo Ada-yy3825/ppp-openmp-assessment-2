@@ -1,6 +1,6 @@
 # Assignment 2 — Mandelbrot: two-variant comparison
 
-This is the **starter repo** for Assignment 2 of the PPP-OpenMP assessment. **Target: 30 marks** (out of 100 across A1+A2+A3).
+This is the **starter repo** for Assignment 2 of the PPP-OpenMP assessment. **Target: 30 marks** out of 100 (A1=20, A2=30, A3=40, plus a cohort-wide 10-pt hygiene bucket).
 
 Estimate the area of the Mandelbrot set on a 5000×5000 grid — once with `#pragma omp parallel for`, once with `#pragma omp task` / `taskloop`, and justify which variant you'd ship.
 
@@ -62,6 +62,10 @@ OMP_NUM_THREADS=4 ./mandelbrot_for_tsan
 | MCQ | 2 | Deterministic auto-grading |
 | REFLECTION.md format + completion | 1 | CI-format-check (no canonical numerical cross-check) |
 | Reasoning question (instructor-marked) | 2 | Manual 0/1/2 |
+
+## Hygiene (10 pts, cohort-wide)
+
+A separate **10-pt Hygiene bucket** — build cleanliness, lint compliance (clang-format / clang-tidy / cppcheck), README / English readability — is graded once across A1+A2+A3 on your final state. Hygiene in *this* repo contributes. See `assessment/rubric.md` in the lectures repo for the breakdown.
 
 ## CHOICE.md format
 
