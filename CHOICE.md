@@ -1,7 +1,7 @@
 ---
-recommended: tasks
-measured_tasks_s: 0.00
-measured_for_s: 0.00
+recommended: parallel_for
+measured_tasks_s: 2.8760749831999997
+measured_for_s: 0.07307727148
 justification_keyword: irregular_load_balance
 ---
 
@@ -38,4 +38,4 @@ for the perf-component score against the published `T_ref` times.)
 
 Explain your recommendation in plain English. This text is not auto-scored, but it's what the instructor reads when spot-checking and what you get credit for via the REFLECTION-prompt route.
 
-<!-- your justification here -->
+Based on the measured results on the Rome node, the `parallel_for` implementation significantly outperformed the tasks implementation at high thread counts. At 128 threads, the `parallel_for` variant achieved approximately 0.073 seconds, while the tasks variant required about 2.876 seconds. The workload imbalance in Mandelbrot rendering can benefit from task-based scheduling, but in this implementation the task management and synchronization overhead dominated the execution time. The `parallel_for` version with dynamic scheduling achieved much better scalability and substantially higher efficiency on the Rome architecture. Therefore, I would ship the `parallel_for` variant for this workload and hardware configuration.
