@@ -84,7 +84,7 @@ long mandelbrot_tasks()
 
     if constexpr (NPOINTS % 2 == 1) {
         const int j = J_HALF;
-#pragma omp parallel for schedule(dynamic, 1) reduction(+ : outside)
+#pragma omp parallel for schedule(dynamic, 64) reduction(+ : outside)
         for (int i = 0; i < NPOINTS; ++i) {
             const double cr = -2.0 + (3.0 * static_cast<double>(i) / NPOINTS);
             const double ci = -1.5 + (3.0 * static_cast<double>(j) / NPOINTS);
