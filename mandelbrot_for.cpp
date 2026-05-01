@@ -46,6 +46,7 @@ long mandelbrot_parallel_for()
     // The loop body counts each grid point in the upper half (j ∈ [0, J_HALF))
     // and adds 2 to `outside` for each escape (mirror in the lower half via
     // Mandelbrot symmetry mandel(c) = mandel(c̄)).
+    #pragma omp parallel for collapse(2) schedule(dynamic, 1) reduction(+ : outside)
     for (int i = 0; i < NPOINTS; ++i) {
         for (int j = 0; j < J_HALF; ++j) {
             const double cr = -2.0 + (3.0 * static_cast<double>(i) / NPOINTS);
@@ -58,6 +59,7 @@ long mandelbrot_parallel_for()
     if constexpr (NPOINTS % 2 == 1) {
         // Centre row (only when NPOINTS is odd) — counted exactly once.
         const int j = J_HALF;
+        #pragma omp parallel for schedule(dynamic, 1) reduction(+ : outside)
         for (int i = 0; i < NPOINTS; ++i) {
             const double cr = -2.0 + (3.0 * static_cast<double>(i) / NPOINTS);
             const double ci = -1.5 + (3.0 * static_cast<double>(j) / NPOINTS);
