@@ -3,7 +3,7 @@
 // Tile the NPOINTS × NPOINTS grid into TILE × TILE blocks and spawn one
 // OpenMP task per tile. Because per-pixel cost is highly variable near the
 // Mandelbrot boundary, task-parallelism gives better load-balancing than
-// static parallel_for.
+// static parallel_for. 
 //
 // Two idioms are equally acceptable:
 //   (a) #pragma omp parallel + #pragma omp single + nested #pragma omp task
