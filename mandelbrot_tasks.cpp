@@ -3,7 +3,7 @@
 // Tile the NPOINTS × NPOINTS grid into TILE × TILE blocks and spawn one
 // OpenMP task per tile. Because per-pixel cost is highly variable near the
 // Mandelbrot boundary, task-parallelism gives better load-balancing than
-// static parallel_for. 
+// static parallel_for.
 //
 // Two idioms are equally acceptable:
 //   (a) #pragma omp parallel + #pragma omp single + nested #pragma omp task
@@ -20,7 +20,8 @@
 #include <omp.h>
 
 namespace {
-struct cplx {
+struct cplx
+{
     double re;
     double im;
 };
@@ -56,23 +57,23 @@ long count_tile_upper(int i0, int j0, int j_half)
     }
     return local;
 }
-}  // namespace
+} // namespace
 
 long mandelbrot_tasks()
 {
     long outside = 0;
     constexpr int J_HALF = NPOINTS / 2;
-    // TODO(student): replace this serial fallback with a task-parallel version.
-    //
-    // Iterate over upper-half tile origins (i0 ∈ [0, NPOINTS), j0 ∈ [0, J_HALF))
-    // at stride TILE, spawn one task per tile, accumulate per-tile counts. Add
-    // 2 × count to `outside` for each tile (mirror in the lower half via
-    // Mandelbrot symmetry).
-    #pragma omp parallel
+// TODO(student): replace this serial fallback with a task-parallel version.
+//
+// Iterate over upper-half tile origins (i0 ∈ [0, NPOINTS), j0 ∈ [0, J_HALF))
+// at stride TILE, spawn one task per tile, accumulate per-tile counts. Add
+// 2 × count to `outside` for each tile (mirror in the lower half via
+// Mandelbrot symmetry).
+#pragma omp parallel
     {
-        #pragma omp single
+#pragma omp single
         {
-            #pragma omp taskloop grainsize(8) reduction(+ : outside)
+#pragma omp taskloop grainsize(8) reduction(+ : outside)
             for (int i0 = 0; i0 < NPOINTS; i0 += TILE) {
                 for (int j0 = 0; j0 < J_HALF; j0 += TILE) {
                     outside += 2 * count_tile_upper(i0, j0, J_HALF);
@@ -83,7 +84,7 @@ long mandelbrot_tasks()
 
     if constexpr (NPOINTS % 2 == 1) {
         const int j = J_HALF;
-        #pragma omp parallel for schedule(dynamic, 1) reduction(+ : outside)
+#pragma omp parallel for schedule(dynamic, 1) reduction(+ : outside)
         for (int i = 0; i < NPOINTS; ++i) {
             const double cr = -2.0 + (3.0 * static_cast<double>(i) / NPOINTS);
             const double ci = -1.5 + (3.0 * static_cast<double>(j) / NPOINTS);
@@ -98,8 +99,8 @@ long mandelbrot_tasks()
 int main()
 {
     const long outside = mandelbrot_tasks();
-    const double area = 9.0 * static_cast<double>(outside)
-                        / (static_cast<double>(NPOINTS) * NPOINTS);
+    const double area =
+        9.0 * static_cast<double>(outside) / (static_cast<double>(NPOINTS) * NPOINTS);
     // Deterministic output — correctness channel only. Timing via hyperfine.
     std::printf("outside = %ld\n", outside);
     std::printf("area = %.6f\n", area);

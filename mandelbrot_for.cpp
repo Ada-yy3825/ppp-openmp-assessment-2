@@ -14,7 +14,8 @@
 #include <omp.h>
 
 namespace {
-struct cplx {
+struct cplx
+{
     double re;
     double im;
 };
@@ -32,21 +33,21 @@ inline int escape_iters(double cr, double ci)
     }
     return MAXITER;
 }
-}  // namespace
+} // namespace
 
 long mandelbrot_parallel_for()
 {
     long outside = 0;
-    constexpr int J_HALF = NPOINTS / 2;     // upper half by symmetry
+    constexpr int J_HALF = NPOINTS / 2; // upper half by symmetry
 
-    // TODO(student): parallelise the outer-or-collapsed loop. Reduction on
-    // `outside`. Pick a schedule. Serial fallback below so the scaffolding
-    // builds on day 2.
-    //
-    // The loop body counts each grid point in the upper half (j ∈ [0, J_HALF))
-    // and adds 2 to `outside` for each escape (mirror in the lower half via
-    // Mandelbrot symmetry mandel(c) = mandel(c̄)).
-    #pragma omp parallel for collapse(2) schedule(dynamic, 1) reduction(+ : outside)
+// TODO(student): parallelise the outer-or-collapsed loop. Reduction on
+// `outside`. Pick a schedule. Serial fallback below so the scaffolding
+// builds on day 2.
+//
+// The loop body counts each grid point in the upper half (j ∈ [0, J_HALF))
+// and adds 2 to `outside` for each escape (mirror in the lower half via
+// Mandelbrot symmetry mandel(c) = mandel(c̄)).
+#pragma omp parallel for collapse(2) schedule(dynamic, 1) reduction(+ : outside)
     for (int i = 0; i < NPOINTS; ++i) {
         for (int j = 0; j < J_HALF; ++j) {
             const double cr = -2.0 + (3.0 * static_cast<double>(i) / NPOINTS);
@@ -59,7 +60,7 @@ long mandelbrot_parallel_for()
     if constexpr (NPOINTS % 2 == 1) {
         // Centre row (only when NPOINTS is odd) — counted exactly once.
         const int j = J_HALF;
-        #pragma omp parallel for schedule(dynamic, 1) reduction(+ : outside)
+#pragma omp parallel for schedule(dynamic, 1) reduction(+ : outside)
         for (int i = 0; i < NPOINTS; ++i) {
             const double cr = -2.0 + (3.0 * static_cast<double>(i) / NPOINTS);
             const double ci = -1.5 + (3.0 * static_cast<double>(j) / NPOINTS);
@@ -74,8 +75,8 @@ long mandelbrot_parallel_for()
 int main()
 {
     const long outside = mandelbrot_parallel_for();
-    const double area = 9.0 * static_cast<double>(outside)
-                        / (static_cast<double>(NPOINTS) * NPOINTS);
+    const double area =
+        9.0 * static_cast<double>(outside) / (static_cast<double>(NPOINTS) * NPOINTS);
     // Deterministic output — correctness channel only. Timing via hyperfine.
     std::printf("outside = %ld\n", outside);
     std::printf("area = %.6f\n", area);
